@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Table(
         uniqueConstraints = @UniqueConstraint(
+                name = "uk_ticket_event_type",
                 columnNames = {"event_id", "ticket_type"}
         )
 )
@@ -18,7 +19,7 @@ public class Ticket {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
