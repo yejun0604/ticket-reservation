@@ -63,7 +63,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userId ));
 
         if(reservationRepository.existsByUserId(userId )) {
-            throw new UserHasReservationsException("User with reservations cannot be deleted.");
+            throw new UserHasReservationsException("User with reservations cannot be deleted: " + userId);
         }
 
         userRepository.delete(user);

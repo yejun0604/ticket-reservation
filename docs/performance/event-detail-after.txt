@@ -1,0 +1,24 @@
+2026-10-07T14:42:17.907+10:00  INFO 22032 --- [ticket-reservation] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-07T14:42:17.907+10:00  INFO 22032 --- [ticket-reservation] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-07T14:42:17.909+10:00  INFO 22032 --- [ticket-reservation] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-10-07T14:42:18.061+10:00 DEBUG 22032 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        e1_0.id,
+        e1_0.start_time,
+        e1_0.status,
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity,
+        e1_0.title,
+        e1_0.venue
+    from
+        event e1_0
+    left join
+        ticket t1_0
+            on e1_0.id=t1_0.event_id
+    where
+        e1_0.id=?
+2026-10-07T14:42:18.063+10:00 TRACE 22032 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10050]

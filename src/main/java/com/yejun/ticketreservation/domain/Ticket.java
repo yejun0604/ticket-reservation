@@ -1,8 +1,6 @@
 package com.yejun.ticketreservation.domain;
-
 import jakarta.persistence.*;
 import lombok.Getter;
-
 import java.math.BigDecimal;
 
 @Entity
@@ -35,4 +33,20 @@ public class Ticket {
 
     @Column(nullable = false)
     private int remainingQuantity;
+
+    public static Ticket createTicket(Event event,
+                                      TicketType ticketType,
+                                      BigDecimal price,
+                                      int totalQuantity) {
+
+        Ticket ticket = new Ticket();
+
+        ticket.event = event;
+        ticket.ticketType = ticketType;
+        ticket.price = price;
+        ticket.totalQuantity = totalQuantity;
+        ticket.remainingQuantity = totalQuantity;
+
+        return ticket;
+    }
 }

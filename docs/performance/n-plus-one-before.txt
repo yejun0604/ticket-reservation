@@ -1,0 +1,662 @@
+2026-10-07T14:18:01.110+10:00  INFO 22768 --- [ticket-reservation] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-07T14:18:01.110+10:00  INFO 22768 --- [ticket-reservation] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-07T14:18:01.112+10:00  INFO 22768 --- [ticket-reservation] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-10-07T14:18:01.300+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        e1_0.id,
+        e1_0.start_time,
+        e1_0.status,
+        e1_0.title,
+        e1_0.venue
+    from
+        event e1_0
+2026-10-07T14:18:01.362+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.363+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10001]
+2026-10-07T14:18:01.370+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.370+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10002]
+2026-10-07T14:18:01.373+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.374+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10003]
+2026-10-07T14:18:01.375+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.376+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10004]
+2026-10-07T14:18:01.379+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.379+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10005]
+2026-10-07T14:18:01.381+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.381+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10006]
+2026-10-07T14:18:01.383+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.383+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10007]
+2026-10-07T14:18:01.385+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.385+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10008]
+2026-10-07T14:18:01.388+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.388+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10009]
+2026-10-07T14:18:01.390+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.390+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10010]
+2026-10-07T14:18:01.392+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.393+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10011]
+2026-10-07T14:18:01.394+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.394+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10012]
+2026-10-07T14:18:01.398+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.398+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10013]
+2026-10-07T14:18:01.399+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.399+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10014]
+2026-10-07T14:18:01.402+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.402+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10015]
+2026-10-07T14:18:01.403+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.404+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10016]
+2026-10-07T14:18:01.405+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.406+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10017]
+2026-10-07T14:18:01.407+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.407+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10018]
+2026-10-07T14:18:01.409+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.410+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10019]
+2026-10-07T14:18:01.412+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.412+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10020]
+2026-10-07T14:18:01.414+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.414+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10021]
+2026-10-07T14:18:01.415+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.415+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10022]
+2026-10-07T14:18:01.415+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.416+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10023]
+2026-10-07T14:18:01.418+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.418+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10024]
+2026-10-07T14:18:01.420+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.420+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10025]
+2026-10-07T14:18:01.421+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.421+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10026]
+2026-10-07T14:18:01.423+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.423+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10027]
+2026-10-07T14:18:01.425+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.425+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10028]
+2026-10-07T14:18:01.428+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.429+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10029]
+2026-10-07T14:18:01.431+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.431+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10030]
+2026-10-07T14:18:01.433+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.433+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10031]
+2026-10-07T14:18:01.435+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.436+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10032]
+2026-10-07T14:18:01.438+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.438+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10033]
+2026-10-07T14:18:01.439+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.439+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10034]
+2026-10-07T14:18:01.440+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.440+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10035]
+2026-10-07T14:18:01.442+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.442+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10036]
+2026-10-07T14:18:01.444+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.444+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10037]
+2026-10-07T14:18:01.446+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.446+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10038]
+2026-10-07T14:18:01.448+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.448+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10039]
+2026-10-07T14:18:01.450+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.450+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10040]
+2026-10-07T14:18:01.451+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.452+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10041]
+2026-10-07T14:18:01.453+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.453+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10042]
+2026-10-07T14:18:01.454+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.455+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10043]
+2026-10-07T14:18:01.456+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.456+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10044]
+2026-10-07T14:18:01.457+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.457+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10045]
+2026-10-07T14:18:01.458+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.458+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10046]
+2026-10-07T14:18:01.459+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.459+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10047]
+2026-10-07T14:18:01.462+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.462+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10048]
+2026-10-07T14:18:01.463+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.463+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10049]
+2026-10-07T14:18:01.465+10:00 DEBUG 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.SQL                        :
+    select
+        t1_0.event_id,
+        t1_0.id,
+        t1_0.price,
+        t1_0.remaining_quantity,
+        t1_0.ticket_type,
+        t1_0.total_quantity
+    from
+        ticket t1_0
+    where
+        t1_0.event_id=?
+2026-10-07T14:18:01.465+10:00 TRACE 22768 --- [ticket-reservation] [nio-8080-exec-1] org.hibernate.orm.jdbc.bind              : binding parameter (1:BIGINT) <- [10050]
