@@ -1,13 +1,14 @@
 package com.yejun.ticketreservation.mapper;
 
 import com.yejun.ticketreservation.domain.Event;
-import com.yejun.ticketreservation.dto.EventResponseDto;
+import com.yejun.ticketreservation.dto.EventDetailResponseDto;
+import com.yejun.ticketreservation.dto.EventSummaryResponseDto;
 
 public class EventMapper {
 
-    public static EventResponseDto toDto(Event event){
+    public static EventDetailResponseDto toDto(Event event){
 
-        EventResponseDto eventDto = new EventResponseDto();
+        EventDetailResponseDto eventDto = new EventDetailResponseDto();
 
         eventDto.setId(event.getId());
         eventDto.setTitle(event.getTitle());
@@ -22,5 +23,18 @@ public class EventMapper {
 
         return eventDto;
 
+    }
+
+    public static EventSummaryResponseDto toSummaryDto(Event event) {
+
+        EventSummaryResponseDto dto = new EventSummaryResponseDto();
+
+        dto.setId(event.getId());
+        dto.setTitle(event.getTitle());
+        dto.setVenue(event.getVenue());
+        dto.setStartTime(event.getStartTime());
+        dto.setStatus(event.getStatus());
+
+        return dto;
     }
 }

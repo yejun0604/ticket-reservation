@@ -20,10 +20,4 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                 @Param("eventId") Long eventId
         );
 
-        @Query("""
-        select e
-        from Event e
-        left join fetch e.tickets
-        """)
-        List<Event> findAllWithTickets();
 }

@@ -1,6 +1,7 @@
 package com.yejun.ticketreservation.service;
 
-import com.yejun.ticketreservation.dto.EventResponseDto;
+import com.yejun.ticketreservation.dto.EventDetailResponseDto;
+import com.yejun.ticketreservation.dto.EventSummaryResponseDto;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
@@ -8,8 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,50 +29,51 @@ class EventQueryPerformanceTest {
     @BeforeEach
     void setUp() {
 
-        // Hibernate Statistics 가져오기
         statistics = entityManagerFactory
                 .unwrap(SessionFactory.class)
                 .getStatistics();
 
-        // 이전에 실행된 SQL 개수 기록 초기화
         statistics.clear();
     }
 
     @Test
-    void getEvents_shouldExecuteOneQuery() {
+    void getEvents_shouldNotCauseNPlusOne() {
+
+        // 첫 페이지에서 Event 20개 조회
+        Pageable pageable = PageRequest.of(0, 20);
 
         // 실행
-        List<EventResponseDto> events = eventService.getEvents();
+        Page<EventSummaryResponseDto> events =
+                eventService.getEvents(pageable);
 
-        // 실제 실행된 SQL 개수
         long queryCount = statistics.getPrepareStatementCount();
 
         System.out.println("getEvents query count = " + queryCount);
 
-        // 데이터가 실제 조회됐는지
-        assertThat(events).isNotEmpty();
+        assertThat(events.getContent()).isNotEmpty();
 
-        // Fetch Join 적용 후 SQL은 1번이어야 함
-        assertThat(queryCount).isEqualTo(1);
+        // Event 목록 조회 1번
+        // + Page 전체 개수를 위한 COUNT 쿼리가 실행될 수 있음
+        //
+        // Ticket에는 접근하지 않으므로 N+1은 발생하면 안 됨
+        assertThat(queryCount).isBetween(1L, 2L);
     }
 
     @Test
     void getEvent_shouldExecuteOneQuery() {
 
-        // 우리가 seed로 넣은 Event
         Long eventId = 10001L;
 
-        // 실행
-        EventResponseDto event = eventService.getEvent(eventId);
+        EventDetailResponseDto event =
+                eventService.getEvent(eventId);
 
-        // 실제 실행된 SQL 개수
         long queryCount = statistics.getPrepareStatementCount();
 
         System.out.println("getEvent query count = " + queryCount);
 
         assertThat(event).isNotNull();
 
-        // Event + Tickets Fetch Join → SQL 1번
+        // Event + Tickets Fetch Join
         assertThat(queryCount).isEqualTo(1);
     }
 }

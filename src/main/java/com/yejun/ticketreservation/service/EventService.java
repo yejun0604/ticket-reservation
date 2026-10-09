@@ -2,15 +2,14 @@ package com.yejun.ticketreservation.service;
 
 import com.yejun.ticketreservation.domain.Event;
 import com.yejun.ticketreservation.domain.Ticket;
-import com.yejun.ticketreservation.dto.EventCreateRequestDto;
-import com.yejun.ticketreservation.dto.EventResponseDto;
-import com.yejun.ticketreservation.dto.EventUpdateRequestDto;
-import com.yejun.ticketreservation.dto.TicketCreateRequestDto;
+import com.yejun.ticketreservation.dto.*;
 import com.yejun.ticketreservation.exception.EventNotFoundException;
 import com.yejun.ticketreservation.mapper.EventMapper;
 import com.yejun.ticketreservation.repository.EventRepository;
 import com.yejun.ticketreservation.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +23,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final TicketRepository ticketRepository;
 
-
-    // To get one event, it sends 2 queries (One for event, one for Ticket)
-    public EventResponseDto getEvent(Long eventId){
+    public EventDetailResponseDto getEvent(Long eventId){
 
         Event event = eventRepository.findByIdWithTickets(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
@@ -34,19 +31,14 @@ public class EventService {
         return EventMapper.toDto(event);
     }
 
-    // N + 1 problem, when fetching Tickets for each Event
-    public List<EventResponseDto> getEvents() {
+    public Page<EventSummaryResponseDto> getEvents(Pageable pageable){
 
-        List<Event> events = eventRepository.findAllWithTickets();
-
-        return events
-                .stream()
-                .map(EventMapper::toDto)
-                .toList();
+        return eventRepository.findAll(pageable)
+                .map(EventMapper::toSummaryDto);
     }
 
     @Transactional
-    public EventResponseDto createEvent(EventCreateRequestDto eventCreateRequestDto){
+    public EventDetailResponseDto createEvent(EventCreateRequestDto eventCreateRequestDto){
 
         Event event = Event.createEvent(
                 eventCreateRequestDto.getTitle(),
@@ -78,7 +70,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(
+    public EventDetailResponseDto updateEvent(
             Long eventId,
             EventUpdateRequestDto dto) {
 

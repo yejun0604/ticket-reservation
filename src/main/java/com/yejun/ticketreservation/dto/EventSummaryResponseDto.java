@@ -4,11 +4,9 @@ import com.yejun.ticketreservation.domain.EventStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
-public class EventResponseDto {
+public class EventSummaryResponseDto {
 
     private Long id;
 
@@ -20,5 +18,4 @@ public class EventResponseDto {
 
     private EventStatus status;
 
-    private List<TicketResponseDto> tickets = new ArrayList<>();
 }
