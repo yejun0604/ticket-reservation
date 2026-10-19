@@ -1,107 +1,153 @@
 # ReserveFlow
 
-**Ticket reservation backend built with Java 21, Spring Boot 4.1.1, Spring Data JPA, Hibernate and PostgreSQL 17.**
+**Concurrency-safe ticket reservation API built with Java 21, Spring Boot, JPA/Hibernate and PostgreSQL 17.**
 
-ReserveFlow is a backend portfolio project focused on three engineering challenges: preventing ticket overselling under concurrent requests, keeping reservations consistent during event cancellation, and controlling SQL query counts during paginated reads.
+ReserveFlow manages events, ticket inventory and reservations. It was built to solve three connected backend problems: **overselling under concurrent requests**, **consistent cancellation across related records**, and **efficient reservation pagination with JPA**.
 
 ## Engineering highlights
 
-| Challenge | Implementation | Evidence |
+| Challenge | Engineering decision | Verified outcome |
 | --- | --- | --- |
-| Concurrent reservations for limited stock | Optimistic locking with `@Version` on `Ticket` | Concurrency tests check conflicts, committed reservations and final inventory |
-| Reservation operations racing with event cancellation | Pessimistic read/write locks on `Event` and service-layer transactions | Four event-cancellation concurrency scenarios |
-| N+1 queries and reservation pagination | To-one fetch join, Hibernate batch fetching, database-level pagination | Historical Event–Ticket experiment: **51 vs 1 SELECT**; reservation page test: **20 rows with 4 SQL statements** in a recorded run |
+| Competing bookings for the last ticket | Optimistic locking with `@Version` on `Ticket` | Concurrent transactions produce one successful stock update and one version conflict |
+| Reservations racing with event cancellation | `PESSIMISTIC_READ` for reservation operations, `PESSIMISTIC_WRITE` for event cancellation | Four concurrent cancellation scenarios verify final reservation status and inventory |
+| N+1 queries and paginated association loading | Targeted fetch joins, Hibernate batch fetching and database-level pagination | Event–Ticket investigation: **51 → 1 SELECT**; reservation page: **20 results in 4 SQL statements** |
 
-## 1. Transaction and concurrency design
+**Stack:** Java 21 · Spring Boot 4.1.1 · Spring Data JPA · Hibernate 7.4.5 · PostgreSQL 17 · Gradle · Docker Compose · JUnit 5
 
-### Optimistic locking: prevent overselling
+## Engineering case study: from N+1 queries to correct pagination
 
-A simple stock check cannot prevent two transactions from reading the same quantity and both attempting to reserve it. `Ticket` has a JPA `@Version` field so conflicting updates cannot silently overwrite each other.
+### 1. Reproducing the N+1 problem
 
-The tests use a ticket with **one available unit** and two competing operations. They verify the successful update, the optimistic locking conflict, the remaining quantity and, for the reservation-level test, the number of reservations persisted. An optimistic locking conflict is mapped to HTTP `409 Conflict`.
+Accessing `Event.tickets` after loading events caused separate lazy-loading queries for each event. I captured the generated SQL to make the problem measurable: **one event query followed by 50 ticket queries (51 SELECTs)**.
 
-**Code:** [Ticket.java](src/main/java/com/yejun/ticketreservation/domain/Ticket.java) · [ReservationService.java](src/main/java/com/yejun/ticketreservation/service/ReservationService.java)
-**Tests:** [TicketConcurrencyTest.java](src/test/java/com/yejun/ticketreservation/concurrency/TicketConcurrencyTest.java) · [ReservationConcurrencyTest.java](src/test/java/com/yejun/ticketreservation/concurrency/ReservationConcurrencyTest.java)
+Switching the Event–Ticket read to `LEFT JOIN FETCH` loaded the required association in **one SELECT**. Both SQL traces and screenshots are available below.
 
-### Pessimistic locking: coordinate event cancellation
+| Event–Ticket query | SELECTs recorded | Evidence |
+| --- | ---: | --- |
+| Event list followed by lazy ticket access | **51** | [SQL](docs/performance/n-plus-one-before.txt) · [Screenshot](docs/performance/n-plus-one-before.png) |
+| Event–Ticket `LEFT JOIN FETCH` | **1** | [SQL](docs/performance/n-plus-one-after.txt) · [Screenshot](docs/performance/n-plus-one-after.png) |
 
-A reservation must not be created while its event is being cancelled. The service uses a `PESSIMISTIC_READ` lock on `Event` when creating or cancelling an individual reservation and a `PESSIMISTIC_WRITE` lock when cancelling the entire event.
+### 2. Discovering the collection fetch-join pagination problem
 
-Event cancellation updates the event status, cancels its confirmed reservations and restores their ticket inventory within a transaction. Four integration-test scenarios cover competing operation orders and verify the final reservation and stock state.
+When implementing the reservation listing, an earlier repository query, `findAllWithDetails(Pageable)`, fetch-joined `Reservation.event`, `Reservation.reservationItems` and `ReservationItem.ticket` together.
 
-**Code:** [EventRepository.java](src/main/java/com/yejun/ticketreservation/repository/EventRepository.java) · [EventService.java](src/main/java/com/yejun/ticketreservation/service/EventService.java)
-**Test:** [EventCancellationLockTest.java](src/test/java/com/yejun/ticketreservation/concurrency/EventCancellationLockTest.java)
+That approach eagerly loaded the response graph, but introduced a different problem: **fetch-joining a to-many collection in a paginated query can multiply rows and cause Hibernate to paginate in memory rather than apply the page limit in SQL**. Loading all reservation items was the wrong trade-off for a pageable endpoint.
 
-### Transaction boundaries and OSIV
+### 3. Separating page selection from association loading
 
-State-changing operations run within service-layer `@Transactional` methods. Entity-to-DTO mapping occurs before the service returns.
+I replaced the collection fetch-join page query with `findAllWithEvent(Pageable)`:
 
-`spring.jpa.open-in-view=false` is a deliberate boundary decision: lazy loading and database queries should be handled in the service layer rather than being triggered during controller response serialization. **Disabling OSIV is not claimed as a performance improvement.**
+- **To-one fetch join:** fetch `Reservation.event` in the main reservation query.
+- **Database pagination:** apply `ORDER BY` and `FETCH FIRST 20 ROWS ONLY` to the reservation rows in PostgreSQL.
+- **Batch fetching:** load `ReservationItem` and `Ticket` associations in batches using `hibernate.default_batch_fetch_size=20`.
+- **DTO mapping inside the service:** map the returned page while the service transaction is active, with OSIV disabled.
 
-## 2. JPA query optimisation
+This keeps the collection out of the paginated fetch join while avoiding a query per reservation item.
 
-### Historical Event–Ticket N+1 investigation
+### 4. Measuring the final query plan
 
-An earlier experiment exposed the N+1 pattern when loading events and lazily accessing their tickets. The saved SQL traces contain:
+On **19 October 2026**, `ReservationPaginationPerformanceTest` created 20 reservation fixtures, flushed and cleared the persistence context, reset Hibernate Statistics, and measured the page read on PostgreSQL 17.
 
-| Query pattern | SELECT statements in the recorded trace |
+| Measurement | Result |
 | --- | ---: |
-| Event query followed by lazy ticket loading | **51** |
-| Event–Ticket `LEFT JOIN FETCH` | **1** |
+| Reservations in the test transaction | 85, including 20 test-created reservations |
+| Requested page | 20 reservations |
+| Prepared SQL statements for the read | **4** |
 
-**Evidence:** [Before SQL](docs/performance/n-plus-one-before.txt) · [After SQL](docs/performance/n-plus-one-after.txt) · [Before screenshot](docs/performance/n-plus-one-before.png) · [After screenshot](docs/performance/n-plus-one-after.png)
+The four statements were a paginated Reservation–Event query, a count query, a batch query for reservation items, and a batch query for tickets. The test verifies the returned reservation IDs and asserts an SQL count of **at most five**; its fixtures are rolled back afterward.
 
-This is a comparison of two recorded Event–Ticket loading patterns. It is **not** a response-time benchmark and is **not** a claimed before/after measurement of the current paginated reservation endpoint.
+**Implementation:** [ReservationRepository](src/main/java/com/yejun/ticketreservation/repository/ReservationRepository.java) · [ReservationService](src/main/java/com/yejun/ticketreservation/service/ReservationService.java) · [SQL-count integration test](src/test/java/com/yejun/ticketreservation/performance/ReservationPaginationPerformanceTest.java)
 
-### Paginated reservation listing
+## Concurrency and data consistency
 
-A pageable query that fetch-joins a **collection** can interfere with database pagination. The reservation listing instead fetch-joins its to-one `Event` relationship and uses Hibernate batch fetching (`default_batch_fetch_size: 20`) for related reservation items and tickets. The main reservation query remains paginated in PostgreSQL.
+### Preventing ticket overselling
 
-On **19 October 2026**, a PostgreSQL-backed run of `ReservationPaginationPerformanceTest` produced:
+Two requests can read the same remaining stock before either transaction commits. A stock check alone cannot resolve this race.
 
-| Measurement | Recorded result |
-| --- | ---: |
-| Reservations visible in that test transaction | **85**, including 20 created by the test |
-| Reservations returned on the requested page | **20** |
-| Prepared SQL statements during the measured read | **4** |
+`Ticket` uses JPA `@Version` to reject conflicting updates. The concurrency tests start with **one ticket** and execute two competing transactions, checking the version conflict and final stock. The reservation-level test also verifies that only one reservation was persisted. An optimistic locking conflict is returned as **HTTP 409 Conflict**.
 
-The measured read consisted of a paginated `Reservation`/`Event` query, a count query, a batch query for reservation items and a batch query for tickets. The test creates 20 reservations, flushes and clears the persistence context, resets Hibernate Statistics, checks the returned reservation IDs and asserts **at most five SQL statements**. Its own data is rolled back afterward.
+**Implementation:** [Ticket](src/main/java/com/yejun/ticketreservation/domain/Ticket.java) · [ReservationService](src/main/java/com/yejun/ticketreservation/service/ReservationService.java)
 
-**Code:** [ReservationRepository.java](src/main/java/com/yejun/ticketreservation/repository/ReservationRepository.java) · [ReservationService.java](src/main/java/com/yejun/ticketreservation/service/ReservationService.java)
-**Test:** [ReservationPaginationPerformanceTest.java](src/test/java/com/yejun/ticketreservation/performance/ReservationPaginationPerformanceTest.java)
+**Tests:** [TicketConcurrencyTest](src/test/java/com/yejun/ticketreservation/concurrency/TicketConcurrencyTest.java) · [ReservationConcurrencyTest](src/test/java/com/yejun/ticketreservation/concurrency/ReservationConcurrencyTest.java)
 
-The **4-statement count is a result from one actual test run**, not a guarantee for every dataset or a latency/throughput measurement. The pagination test can be rerun to inspect current SQL counts; its console output is not stored in `docs/performance`.
+### Coordinating reservation and event cancellation
 
-## 3. Domain model and REST API
+Ticket versioning protects stock updates, but does not by itself coordinate bookings with an event's lifecycle. ReserveFlow therefore uses locks on the shared `Event` row:
 
-The model has five entities: `Event`, `Ticket`, `User`, `Reservation` and `ReservationItem`.
+- **`PESSIMISTIC_READ`** when creating or cancelling an individual reservation.
+- **`PESSIMISTIC_WRITE`** when cancelling an entire event.
 
-- An `Event` has one or two ticket types (`GENERAL` and/or `VIP`).
-- A `Ticket` holds its price, available quantity and optimistic-lock version. `(event_id, ticket_type)` is unique.
-- A `Reservation` belongs to one user and one event and contains one or more `ReservationItem` records.
-- Reservation creation validates event availability, ticket ownership, duplicate ticket selections and available stock.
-- Cancelling a reservation restores its quantities; cancelling an event also cancels affected confirmed reservations.
+Event cancellation changes the event status, cancels confirmed reservations and restores the associated inventory in one transaction. Four integration tests exercise competing execution orders, including reservation versus event cancellation and individual versus event-wide cancellation.
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `POST` | `/users` | Create a user |
-| `GET` | `/users`, `/users/{id}` | List or retrieve users |
-| `DELETE` | `/users/{id}` | Delete a user when allowed |
-| `POST` | `/events` | Create an event and its ticket types |
-| `GET` | `/events`, `/events/{id}` | Paginated list or event details |
-| `PUT` | `/events/{id}` | Update event details |
-| `PATCH` | `/events/{id}/cancel` | Cancel an event |
-| `POST` | `/reservations` | Create a reservation |
-| `GET` | `/reservations`, `/reservations/{id}` | Paginated list or reservation details |
-| `PATCH` | `/reservations/{id}/cancel` | Cancel a reservation and restore stock |
+**Implementation:** [EventRepository](src/main/java/com/yejun/ticketreservation/repository/EventRepository.java) · [EventService](src/main/java/com/yejun/ticketreservation/service/EventService.java)
 
-Example pagination: `GET /reservations?page=0&size=20&sort=id,asc`
+**Tests:** [EventCancellationLockTest](src/test/java/com/yejun/ticketreservation/concurrency/EventCancellationLockTest.java)
 
-## 4. Run with Docker Compose
+### Transaction boundaries
 
-**Prerequisite:** Docker Desktop or Docker Engine with Docker Compose.
+Mutations run in service-layer `@Transactional` methods. DTO mapping also occurs within the service boundary, with `spring.jpa.open-in-view=false` to keep entity loading out of controller response serialization.
 
-From the project root, supply a password for your **own local PostgreSQL container**. No `.env` file is required.
+## Data model
+
+```mermaid
+erDiagram
+    USER ||--o{ RESERVATION : makes
+    EVENT ||--o{ TICKET : offers
+    EVENT ||--o{ RESERVATION : receives
+    RESERVATION ||--|{ RESERVATION_ITEM : contains
+    TICKET ||--o{ RESERVATION_ITEM : selected_in
+```
+
+A reservation belongs to **one user and one event** and contains one or more items. Each reservation item stores a ticket, quantity and unit price. An event offers `GENERAL` and/or `VIP` tickets, with a unique constraint on `(event_id, ticket_type)`. Ticket quantities and prices are validated at the API/domain boundaries.
+
+## REST API
+
+| Resource | Operations |
+| --- | --- |
+| Users | `POST /users`, `GET /users`, `GET /users/{id}`, `DELETE /users/{id}` |
+| Events | `POST /events`, `GET /events`, `GET /events/{id}`, `PUT /events/{id}`, `PATCH /events/{id}/cancel` |
+| Reservations | `POST /reservations`, `GET /reservations`, `GET /reservations/{id}`, `PATCH /reservations/{id}/cancel` |
+
+Both event and reservation listings support Spring Data pagination, for example:
+
+```http
+GET /reservations?page=0&size=20&sort=id,asc
+```
+
+### Example reservation flow
+
+**1. Create a user — `POST /users`**
+
+```json
+{"name": "Demo User", "email": "demo@example.com"}
+```
+
+**2. Create an event with ticket inventory — `POST /events`**
+
+```json
+{
+  "title": "Demo Event",
+  "venue": "Demo Hall",
+  "startTime": "2030-01-01T19:00:00",
+  "tickets": [{"ticketType": "GENERAL", "price": 60.00, "totalQuantity": 10}]
+}
+```
+
+**3. Book a ticket — `POST /reservations`**
+
+```json
+{
+  "userId": 1,
+  "eventId": 1,
+  "items": [{"ticketId": 1, "quantity": 1}]
+}
+```
+
+Use the IDs returned by the preceding requests, and select a future event start time.
+
+## Run locally
+
+**Prerequisite:** Docker Desktop, or Docker Engine with Docker Compose.
 
 **Windows PowerShell**
 
@@ -117,74 +163,24 @@ export DB_PASSWORD="choose_your_own_local_password"
 docker compose up --build
 ```
 
-The application listens on **http://localhost:8080**. The Compose database is separate from any existing development database and is not published on a host database port. Its data persists in a named Docker volume.
+The API starts at **http://localhost:8080**. Docker Compose builds the Spring Boot service and starts PostgreSQL 17 with persistent storage in a named volume. A new database has no seed records; create users and events through the API. Hibernate manages the local demo schema with `ddl-auto: update`.
 
-A new database starts without seeded users or events: `GET http://localhost:8080/events` will initially return an empty page. Automatic SQL seeding is disabled (`spring.sql.init.mode=never`), while local schema updates use Hibernate `ddl-auto: update`.
+## Verification
 
-### Example reservation flow
+The PostgreSQL-backed test suite covers optimistic locking, competing reservations, four event-cancellation races, and query counts for paginated reads. **All eight tests passed with Gradle on 19 October 2026.**
 
-**1. Create a user — `POST /users`**
-
-```json
-{"name":"Demo User","email":"demo@example.com"}
-```
-
-**2. Create an event — `POST /events`**
-
-```json
-{
-  "title": "Demo Event",
-  "venue": "Demo Hall",
-  "startTime": "2030-01-01T19:00:00",
-  "tickets": [
-    {"ticketType": "GENERAL", "price": 60.00, "totalQuantity": 10}
-  ]
-}
-```
-
-**3. Reserve a ticket — `POST /reservations`**
-
-```json
-{
-  "userId": 1,
-  "eventId": 1,
-  "items": [{"ticketId": 1, "quantity": 1}]
-}
-```
-
-Replace the example IDs with the IDs returned by the previous requests. Set the event start time to a future date when trying the API.
-
-## 5. Tests
-
-The integration tests use PostgreSQL to exercise database locking and JPA behaviour.
-
-| Test class | What it verifies |
+| Test | What it verifies |
 | --- | --- |
-| [TicketConcurrencyTest](src/test/java/com/yejun/ticketreservation/concurrency/TicketConcurrencyTest.java) | Optimistic-lock conflict and final ticket quantity |
-| [ReservationConcurrencyTest](src/test/java/com/yejun/ticketreservation/concurrency/ReservationConcurrencyTest.java) | Competing reservations, persisted reservation count and inventory |
-| [EventCancellationLockTest](src/test/java/com/yejun/ticketreservation/concurrency/EventCancellationLockTest.java) | Four event-cancellation concurrency scenarios |
-| [ReservationPaginationPerformanceTest](src/test/java/com/yejun/ticketreservation/performance/ReservationPaginationPerformanceTest.java) | Paginated results and a bound on SQL statement count |
-| [TicketReservationApplicationTests](src/test/java/com/yejun/ticketreservation/TicketReservationApplicationTests.java) | Spring application context loads |
+| [TicketConcurrencyTest](src/test/java/com/yejun/ticketreservation/concurrency/TicketConcurrencyTest.java) | Stock version conflict and final inventory |
+| [ReservationConcurrencyTest](src/test/java/com/yejun/ticketreservation/concurrency/ReservationConcurrencyTest.java) | Competing bookings and persisted reservation count |
+| [EventCancellationLockTest](src/test/java/com/yejun/ticketreservation/concurrency/EventCancellationLockTest.java) | Four event/booking cancellation race scenarios |
+| [ReservationPaginationPerformanceTest](src/test/java/com/yejun/ticketreservation/performance/ReservationPaginationPerformanceTest.java) | Page contents and bounded SQL statement count |
+| [TicketReservationApplicationTests](src/test/java/com/yejun/ticketreservation/TicketReservationApplicationTests.java) | Spring application context |
 
-All tests were run successfully through Gradle on **19 October 2026** with an accessible PostgreSQL database and the required `DB_URL`, `DB_USERNAME` and `DB_PASSWORD` environment variables.
-
-**Windows PowerShell** (with those environment variables already set):
+For host-side Gradle tests, provide `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` pointing to an accessible **test PostgreSQL database** and run:
 
 ```powershell
 .\gradlew.bat test --no-daemon
 ```
 
-**macOS / Linux:** `./gradlew test --no-daemon`
-
-Run against a **dedicated test database**. Some concurrency tests persist their fixtures; the pagination test rolls back its changes. The Compose database is not exposed to host-side Gradle by default.
-
-## Technology stack
-
-- Java 21, Spring Boot 4.1.1, Spring MVC, Spring Data JPA, Hibernate 7.4.5.Final
-- PostgreSQL 17
-- Gradle Wrapper, Docker, Docker Compose
-- JUnit 5, Spring Boot Test, AssertJ
-
----
-
-*Scope: This is a backend engineering portfolio project. SQL counts refer to the recorded local test conditions, not production throughput, response-time improvements or a production deployment.*
+The Compose PostgreSQL container is internal to the Docker network, so host-side Gradle tests should use a separately accessible test database.
