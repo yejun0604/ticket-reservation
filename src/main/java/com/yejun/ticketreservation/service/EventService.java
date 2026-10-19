@@ -1,11 +1,11 @@
 package com.yejun.ticketreservation.service;
 
-import com.yejun.ticketreservation.domain.Event;
-import com.yejun.ticketreservation.domain.Ticket;
+import com.yejun.ticketreservation.domain.*;
 import com.yejun.ticketreservation.dto.*;
 import com.yejun.ticketreservation.exception.EventNotFoundException;
 import com.yejun.ticketreservation.mapper.EventMapper;
 import com.yejun.ticketreservation.repository.EventRepository;
+import com.yejun.ticketreservation.repository.ReservationRepository;
 import com.yejun.ticketreservation.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +22,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final TicketRepository ticketRepository;
+    private final ReservationRepository reservationRepository;
 
     public EventDetailResponseDto getEvent(Long eventId){
 
@@ -85,13 +86,29 @@ public class EventService {
         return EventMapper.toDto(event);
     }
 
+
     @Transactional
     public void cancelEvent(Long eventId) {
 
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findByIdForCancellation(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
 
         event.cancelEvent();
 
+        List<Reservation> reservations = reservationRepository.findByEventIdAndStatusForCancel(eventId, ReservationStatus.CONFIRMED);
+
+        for (int i = 0; i < reservations.size(); i++) {
+
+            Reservation reservation = reservations.get(i);
+
+            reservation.cancelReservation();
+
+            for (int j = 0; j < reservation.getReservationItems().size(); j++) {
+
+                ReservationItem reservationItem = reservation.getReservationItems().get(j);
+
+                reservationItem.getTicket().increaseQuantity(reservationItem.getQuantity());
+            }
+        }
     }
 }

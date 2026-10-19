@@ -18,7 +18,8 @@ public class TicketCreateRequestDto {
     @Positive
     private BigDecimal price;
 
+    @NotNull(message = "Total quantity is required")
     @PositiveOrZero(message = "Total quantity cannot be negative")
-    private int totalQuantity;
+    private Integer totalQuantity;
 
 }

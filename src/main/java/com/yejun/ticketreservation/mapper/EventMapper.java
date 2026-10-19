@@ -8,33 +8,33 @@ public class EventMapper {
 
     public static EventDetailResponseDto toDto(Event event){
 
-        EventDetailResponseDto eventDto = new EventDetailResponseDto();
+        EventDetailResponseDto eventDetailDto = new EventDetailResponseDto();
 
-        eventDto.setId(event.getId());
-        eventDto.setTitle(event.getTitle());
-        eventDto.setVenue(event.getVenue());
-        eventDto.setStartTime(event.getStartTime());
-        eventDto.setStatus(event.getStatus());
+        eventDetailDto.setId(event.getId());
+        eventDetailDto.setTitle(event.getTitle());
+        eventDetailDto.setVenue(event.getVenue());
+        eventDetailDto.setStartTime(event.getStartTime());
+        eventDetailDto.setStatus(event.getStatus());
 
-        eventDto.setTickets(event.getTickets()
+        eventDetailDto.setTickets(event.getTickets()
                 .stream()
                 .map(TicketMapper::toDto)
                 .toList());
 
-        return eventDto;
+        return eventDetailDto;
 
     }
 
     public static EventSummaryResponseDto toSummaryDto(Event event) {
 
-        EventSummaryResponseDto dto = new EventSummaryResponseDto();
+        EventSummaryResponseDto eventSummaryDto = new EventSummaryResponseDto();
 
-        dto.setId(event.getId());
-        dto.setTitle(event.getTitle());
-        dto.setVenue(event.getVenue());
-        dto.setStartTime(event.getStartTime());
-        dto.setStatus(event.getStatus());
+        eventSummaryDto.setId(event.getId());
+        eventSummaryDto.setTitle(event.getTitle());
+        eventSummaryDto.setVenue(event.getVenue());
+        eventSummaryDto.setStartTime(event.getStartTime());
+        eventSummaryDto.setStatus(event.getStatus());
 
-        return dto;
+        return eventSummaryDto;
     }
 }

@@ -26,9 +26,7 @@ public class UserService {
     public UserResponseDto getUser(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new UserNotFoundException("User not found: " + userId)
-                );
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
 
         return UserMapper.toDto(user);
     }
@@ -51,7 +49,9 @@ public class UserService {
             throw new EmailAlreadyExistsException("Email already exists: " + userCreateRequestDto.getEmail());
         }
 
-        User user = userRepository.save(UserMapper.toEntity(userCreateRequestDto));
+        User user = User.createUser(userCreateRequestDto.getName(), userCreateRequestDto.getEmail());
+
+        user = userRepository.save(user);
 
         return UserMapper.toDto(user);
     }

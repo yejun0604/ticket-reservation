@@ -1,10 +1,7 @@
 package com.yejun.ticketreservation.dto;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -25,5 +22,6 @@ public class EventCreateRequestDto {
 
     @Valid
     @NotEmpty(message = "Tickets is required")
+    @Size(max = 2, message = "An event can have at most 2 ticket types")
     private List<TicketCreateRequestDto> tickets;
 }

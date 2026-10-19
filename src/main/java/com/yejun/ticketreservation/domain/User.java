@@ -26,4 +26,13 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations = new ArrayList<>();
 
+    public static User createUser(String name, String email){
+
+        User user = new User();
+        user.name = name;
+        user.email = email;
+
+        return user;
+    }
+
 }

@@ -26,4 +26,22 @@ public class ReservationItem {
 
     @Column(nullable = false)
     private BigDecimal unitPrice;
+
+    public void assignReservation(Reservation reservation) {
+
+        this.reservation = reservation;
+    }
+
+
+    public static ReservationItem createReservationItem(Ticket ticket, int quantity) {
+
+        ReservationItem item = new ReservationItem();
+
+        item.ticket = ticket;
+        item.quantity = quantity;
+        item.unitPrice = ticket.getPrice();
+
+        return item;
+    }
+
 }

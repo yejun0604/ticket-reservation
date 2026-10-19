@@ -1,6 +1,7 @@
 package com.yejun.ticketreservation.domain;
 
-import com.yejun.ticketreservation.dto.TicketCreateRequestDto;
+import com.yejun.ticketreservation.exception.DuplicateTicketTypeException;
+import com.yejun.ticketreservation.exception.EventAlreadyCancelledException;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -49,6 +50,14 @@ public class Event {
 
     public void addTicket(Ticket ticket) {
 
+        for (int i = 0; i < tickets.size(); i++) {
+
+            if (tickets.get(i).getTicketType() == ticket.getTicketType()) {
+
+                throw new DuplicateTicketTypeException("Duplicate ticket type: " + ticket.getTicketType());
+            }
+        }
+
         tickets.add(ticket);
     }
 
@@ -63,6 +72,10 @@ public class Event {
     }
 
     public void cancelEvent() {
+
+        if(status == EventStatus.CANCELLED){
+            throw new EventAlreadyCancelledException("Event is already cancelled: " + id);
+        }
         this.status = EventStatus.CANCELLED;
     }
 }

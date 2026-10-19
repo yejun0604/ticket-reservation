@@ -1,5 +1,6 @@
 package com.yejun.ticketreservation.domain;
 
+import com.yejun.ticketreservation.exception.ReservationAlreadyCancelledException;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -41,5 +42,37 @@ public class Reservation {
     )
     private List<ReservationItem> reservationItems = new ArrayList<>();
 
+    public static Reservation createReservation(User user, Event event, LocalDateTime reservedTime){
 
+        Reservation reservation = new Reservation();
+
+        reservation.user = user;
+        reservation.event = event;
+        reservation.status = ReservationStatus.CONFIRMED;
+        reservation.reservedTime = reservedTime;
+        reservation.totalPrice = BigDecimal.ZERO;
+
+        return reservation;
+    }
+
+    public void addReservationItem(ReservationItem item){
+
+        reservationItems.add(item);
+
+        item.assignReservation(this);
+
+        BigDecimal itemPrice = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+        totalPrice = totalPrice.add(itemPrice);
+    }
+
+    public void cancelReservation(){
+
+        if (status == ReservationStatus.CANCELLED){
+
+            throw new ReservationAlreadyCancelledException("Reservation is already cancelled: " + id);
+        }
+
+        status = ReservationStatus.CANCELLED;
+    }
 }

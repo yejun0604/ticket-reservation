@@ -1,4 +1,7 @@
 package com.yejun.ticketreservation.domain;
+import com.yejun.ticketreservation.exception.InsufficientTicketStockException;
+import com.yejun.ticketreservation.exception.InvalidTicketQuantityException;
+import com.yejun.ticketreservation.exception.TicketStockConsistencyException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import java.math.BigDecimal;
@@ -17,6 +20,9 @@ public class Ticket {
     @GeneratedValue
     private Long id;
 
+    @Version
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
@@ -34,6 +40,7 @@ public class Ticket {
     @Column(nullable = false)
     private int remainingQuantity;
 
+
     public static Ticket createTicket(Event event,
                                       TicketType ticketType,
                                       BigDecimal price,
@@ -48,5 +55,35 @@ public class Ticket {
         ticket.remainingQuantity = totalQuantity;
 
         return ticket;
+    }
+
+    public void increaseQuantity(int quantity) {
+
+        if (quantity <= 0) {
+
+            throw new InvalidTicketQuantityException("Ticket quantity must be greater than 0");
+        }
+
+        if (quantity > totalQuantity - remainingQuantity) {
+
+            throw new TicketStockConsistencyException("Ticket stock would exceed total quantity");
+        }
+
+        remainingQuantity += quantity;
+    }
+
+    public void decreaseQuantity(int quantity){
+
+        if (quantity <= 0){
+
+            throw new InvalidTicketQuantityException("Quantity must be greater than 0");
+        }
+
+        if(remainingQuantity < quantity){
+
+            throw new InsufficientTicketStockException("Not enough ticket stock");
+        }
+
+        remainingQuantity -= quantity;
     }
 }

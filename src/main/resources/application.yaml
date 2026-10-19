@@ -18,13 +18,16 @@ spring:
       hibernate:
         format_sql: true
         generate_statistics: true
+        default_batch_fetch_size: 20
 
   sql:
     init:
-      mode: always
+      mode: never
       data-locations:
         - classpath:db/seed/01_users.sql
         - classpath:db/seed/02_events_tickets.sql
+        - classpath:db/seed/03_reservations.sql
+
 
 logging:
   level:

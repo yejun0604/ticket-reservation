@@ -1,0 +1,19 @@
+# Gradle cache and build outputs
+.gradle/
+build/
+
+# IntelliJ settings
+.idea/
+*.iml
+
+# Git metadata
+.git/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
