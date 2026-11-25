@@ -37,7 +37,7 @@ public class AuthService {
                 (CustomUserDetails) authentication.getPrincipal();
 
         String accessToken =
-                jwtService.generateAccessToken(user.getId());
+                jwtService.generateAccessToken(user.getId(), user.getRole());
 
         String refreshToken =
                 refreshTokenService.generateRefreshToken(user.getId());
@@ -57,7 +57,7 @@ public class AuthService {
                 refreshTokenService.rotateRefreshToken(refreshToken);
 
         String accessToken =
-                jwtService.generateAccessToken(result.getUserId());
+                jwtService.generateAccessToken(result.getUserId(), result.getRole());
 
         return new LoginResponseDto(
                 accessToken,

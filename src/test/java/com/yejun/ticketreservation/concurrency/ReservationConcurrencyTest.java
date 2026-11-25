@@ -107,7 +107,6 @@ public class ReservationConcurrencyTest {
         itemA.setQuantity(1);
 
         ReservationCreateRequestDto reservationA = new ReservationCreateRequestDto();
-        reservationA.setUserId(userAId);
         reservationA.setEventId(eventId);
         reservationA.setItems(List.of(itemA));
 
@@ -116,7 +115,6 @@ public class ReservationConcurrencyTest {
         itemB.setQuantity(1);
 
         ReservationCreateRequestDto reservationB = new ReservationCreateRequestDto();
-        reservationB.setUserId(userBId);
         reservationB.setEventId(eventId);
         reservationB.setItems(List.of(itemB));
 
@@ -127,12 +125,12 @@ public class ReservationConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger(0);
 
         Future<?> a = executor.submit(() -> {
-            createReservation(reservationA, latch);
+            createReservation(userAId, reservationA, latch);
             successCount.incrementAndGet();
         });
 
         Future<?> b = executor.submit(() -> {
-            createReservation(reservationB, latch);
+            createReservation(userBId, reservationB, latch);
             successCount.incrementAndGet();
         });
 
@@ -174,7 +172,7 @@ public class ReservationConcurrencyTest {
 
     }
 
-    private void createReservation(ReservationCreateRequestDto request, CountDownLatch latch){
+    private void createReservation(Long userId, ReservationCreateRequestDto request, CountDownLatch latch){
 
         transactionTemplate.executeWithoutResult(status -> {
 
@@ -188,7 +186,7 @@ public class ReservationConcurrencyTest {
                 throw new RuntimeException(e);
             }
 
-            reservationService.createReservation(request);
+            reservationService.createReservation(userId, request);
         });
     }
 

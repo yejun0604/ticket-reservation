@@ -76,7 +76,6 @@ class EventCancellationLockTest {
         item.setQuantity(1);
 
         request = new ReservationCreateRequestDto();
-        request.setUserId(user.getId());
         request.setEventId(event.getId());
         request.setItems(List.of(item));
     }
@@ -89,13 +88,16 @@ class EventCancellationLockTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        TransactionTemplate transaction =
+                new TransactionTemplate(transactionManager);
 
         try {
 
-            Future<?> cancellation = executor.submit(() -> transaction.executeWithoutResult(status -> {
+            Future<?> cancellation = executor.submit(() ->
+                    transaction.executeWithoutResult(status -> {
 
-                        eventRepository.findByIdForCancellation(event.getId()).orElseThrow();
+                        eventRepository.findByIdForCancellation(event.getId())
+                                .orElseThrow();
 
                         locked.countDown();
 
@@ -118,7 +120,10 @@ class EventCancellationLockTest {
 
             Future<?> reservation = executor.submit(() -> {
                 started.countDown();
-                return reservationService.createReservation(request);
+
+                return reservationService.createReservation(
+                        user.getId(), request
+                );
             });
 
             assertThat(started.await(5, TimeUnit.SECONDS)).isTrue();
@@ -175,6 +180,9 @@ class EventCancellationLockTest {
                     new TransactionTemplate(transactionManager)
                             .execute(status -> {
 
+                                userRepository.findByIdForActiveOperation(user.getId())
+                                        .orElseThrow();
+
                                 eventRepository.findByIdForReservation(event.getId())
                                         .orElseThrow();
 
@@ -189,7 +197,8 @@ class EventCancellationLockTest {
                                     throw new IllegalStateException(e);
                                 }
 
-                                return reservationService.createReservation(request)
+                                return reservationService
+                                        .createReservation(user.getId(), request)
                                         .getReservationId();
                             })
             );
@@ -250,7 +259,7 @@ class EventCancellationLockTest {
 
         // 먼저 예약을 하나 실제로 생성
         Long reservationId = reservationService
-                .createReservation(request)
+                .createReservation(user.getId(), request)
                 .getReservationId();
 
         CountDownLatch locked = new CountDownLatch(1);
@@ -286,7 +295,7 @@ class EventCancellationLockTest {
 
                 started.countDown();
 
-                reservationService.cancelReservation(reservationId);
+                reservationService.cancelReservation(user.getId(), reservationId);
             });
 
             assertThat(started.await(5, TimeUnit.SECONDS)).isTrue();
@@ -339,7 +348,7 @@ class EventCancellationLockTest {
 
         // 먼저 예약을 하나 실제로 생성
         Long reservationId = reservationService
-                .createReservation(request)
+                .createReservation(user.getId(), request)
                 .getReservationId();
 
         CountDownLatch locked = new CountDownLatch(1);
@@ -363,7 +372,7 @@ class EventCancellationLockTest {
 
                         awaitOrFail(allowCancellation);
 
-                        reservationService.cancelReservation(reservationId);
+                        reservationService.cancelReservation(user.getId(), reservationId);
                     })
             );
 
@@ -414,6 +423,4 @@ class EventCancellationLockTest {
             executor.shutdownNow();
         }
     }
-
-
 }

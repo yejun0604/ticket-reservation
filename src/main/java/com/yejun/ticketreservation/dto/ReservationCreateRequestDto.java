@@ -11,9 +11,6 @@ import java.util.List;
 public class ReservationCreateRequestDto {
 
     @NotNull
-    private Long userId;
-
-    @NotNull
     private Long eventId;
 
     @NotEmpty

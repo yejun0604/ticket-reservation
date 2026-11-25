@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
+import com.yejun.ticketreservation.domain.Role;
 
 import java.time.Instant;
 
@@ -20,13 +21,14 @@ public class JwtService {
     @Value("${app.jwt.access-token-expiration}")
     private long expiresIn;
 
-    public String generateAccessToken(Long userId) {
+    public String generateAccessToken(Long userId, Role role) {
 
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(issuer)
                 .subject(userId.toString())
+                .claim("role", role.name())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresIn))
                 .build();

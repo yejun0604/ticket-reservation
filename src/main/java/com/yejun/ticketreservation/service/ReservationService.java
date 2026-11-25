@@ -14,6 +14,7 @@ import com.yejun.ticketreservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,26 +32,30 @@ public class ReservationService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
 
-    public ReservationDetailResponseDto getReservation(Long reservationId){
+    public ReservationDetailResponseDto getReservation(Long userId, Long reservationId){
 
-        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId)
+        Reservation reservation = reservationRepository.findByIdWithDetails(reservationId, userId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + reservationId));
 
         return ReservationMapper.toDto(reservation);
 
     }
 
-    public Page<ReservationSummaryResponseDto> getReservations(Pageable pageable){
+    public Page<ReservationSummaryResponseDto> getReservations(Long userId, Pageable pageable){
 
-        return reservationRepository.findAllWithEvent(pageable)
+        return reservationRepository.findAllWithEvent(userId, pageable)
                 .map(ReservationMapper::toSummaryDto);
     }
 
     @Transactional
-    public ReservationDetailResponseDto createReservation(ReservationCreateRequestDto request){
+    public ReservationDetailResponseDto createReservation(Long userId, ReservationCreateRequestDto request){
 
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() ->
-                new UserNotFoundException("User not found: " + request.getUserId()));
+        User user = userRepository.findByIdForActiveOperation(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+
+        if (!user.isActive()) {
+            throw new AccessDeniedException("Account is inactive");
+        }
 
         Event event = eventRepository.findByIdForReservation(request.getEventId())
                 .orElseThrow(() -> new EventNotFoundException("Event not found: " + request.getEventId()));
@@ -105,15 +110,15 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancelReservation(Long reservationId){
+    public void cancelReservation(Long userId, Long reservationId){
 
-        Long eventId = reservationRepository.findEventIdByReservationId(reservationId)
+        Long eventId = reservationRepository.findEventIdByReservationId(reservationId, userId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + reservationId));
 
         eventRepository.findByIdForReservation(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found: " + eventId));
 
-        Reservation reservation = reservationRepository.findByIdForCancel(reservationId)
+        Reservation reservation = reservationRepository.findByIdForCancel(reservationId, userId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found: " + reservationId));
 
         reservation.cancelReservation();

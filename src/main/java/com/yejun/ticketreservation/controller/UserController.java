@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
 
@@ -19,9 +21,15 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponseDto> getUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable("userId") Long userId, @AuthenticationPrincipal Jwt jwt) {
 
-        return ResponseEntity.ok(userService.getUser(userId));
+        Long currentUserId = Long.valueOf(jwt.getSubject());
+
+        String role = jwt.getClaimAsString("role");
+
+        return ResponseEntity.ok(
+                userService.getUser(userId, currentUserId, role)
+        );
     }
 
     @GetMapping
@@ -40,10 +48,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId){
+    @DeleteMapping("/{userId}") public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId, @AuthenticationPrincipal Jwt jwt) {
 
-        userService.deleteUser(userId);
+        Long currentUserId = Long.valueOf(jwt.getSubject());
+
+        String role = jwt.getClaimAsString("role");
+
+        userService.deleteUser(userId, currentUserId, role);
 
         return ResponseEntity.noContent().build();
     }

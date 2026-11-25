@@ -15,6 +15,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     boolean existsByUserId(Long userId);
 
+    boolean existsByUserIdAndStatus(Long userId, ReservationStatus status);
+
     @Query("""
         select r
         from Reservation r
@@ -23,20 +25,27 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         join fetch r.reservationItems ri
         join fetch ri.ticket
         where r.id = :reservationId
+        and r.user.id = :userId
         """)
     Optional<Reservation> findByIdWithDetails(
-            @Param("reservationId") Long reservationId
+            @Param("reservationId") Long reservationId,
+            @Param("userId") Long userId
     );
 
     @Query(value = """
         select r
         from Reservation r
         join fetch r.event
+        where r.user.id = :userId
         """, countQuery = """
         select count(r)
         from Reservation r
+        where r.user.id = :userId
         """)
-    Page<Reservation> findAllWithEvent(Pageable pageable);
+    Page<Reservation> findAllWithEvent(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
 
 
     @Query("""
@@ -45,9 +54,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         join fetch r.reservationItems ri
         join fetch ri.ticket
         where r.id = :reservationId
+        and r.user.id = :userId
         """)
     Optional<Reservation> findByIdForCancel(
-            @Param("reservationId") Long reservationId
+            @Param("reservationId") Long reservationId,
+            @Param("userId") Long userId
     );
 
     @Query("""
@@ -67,8 +78,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     select r.event.id
     from Reservation r
     where r.id = :reservationId
+    and r.user.id = :userId
     """)
     Optional<Long> findEventIdByReservationId(
-            @Param("reservationId") Long reservationId
+            @Param("reservationId") Long reservationId,
+            @Param("userId") Long userId
     );
 }

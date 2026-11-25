@@ -1,6 +1,7 @@
 package com.yejun.ticketreservation.service;
 
 import com.yejun.ticketreservation.domain.RefreshToken;
+import com.yejun.ticketreservation.domain.Role;
 import com.yejun.ticketreservation.domain.User;
 import com.yejun.ticketreservation.repository.RefreshTokenRepository;
 import com.yejun.ticketreservation.repository.UserRepository;
@@ -33,12 +34,18 @@ public class RefreshTokenService {
 
     @Transactional
     public String generateRefreshToken(Long userId) {
-        User user = userRepository.getReferenceById(userId);
+
+        User user = userRepository.findByIdForActiveOperation(userId)
+                .orElseThrow(() ->
+                        new BadCredentialsException("Invalid credentials"));
+
+        validateActiveUser(user);
 
         return issueToken(user);
     }
 
     private String issueToken(User user) {
+
         byte[] bytes = new byte[32];
         SECURE_RANDOM.nextBytes(bytes);
 
@@ -79,8 +86,22 @@ public class RefreshTokenService {
     @Transactional
     public RotationResult rotateRefreshToken(String rawToken) {
 
+        String tokenHash = hashToken(rawToken);
+
+        Long userId = refreshTokenRepository
+                .findUserIdByTokenHash(tokenHash)
+                .orElseThrow(() ->
+                        new BadCredentialsException("Invalid refresh token"));
+
+        User user = userRepository
+                .findByIdForActiveOperation(userId)
+                .orElseThrow(() ->
+                        new BadCredentialsException("Invalid refresh token"));
+
+        validateActiveUser(user);
+
         RefreshToken refreshToken = refreshTokenRepository
-                .findByTokenHash(hashToken(rawToken))
+                .findByTokenHash(tokenHash)
                 .orElseThrow(() ->
                         new BadCredentialsException("Invalid refresh token"));
 
@@ -90,23 +111,41 @@ public class RefreshTokenService {
 
         refreshToken.revoke();
 
-        User user = refreshToken.getUser();
-
         String newToken = issueToken(user);
 
-        return new RotationResult(user.getId(), newToken);
+        return new RotationResult(
+                user.getId(),
+                newToken,
+                user.getRole()
+        );
     }
 
     @Transactional
     public void revokeRefreshToken(String rawToken) {
+
         refreshTokenRepository.findByTokenHash(hashToken(rawToken))
                 .ifPresent(RefreshToken::revoke);
+    }
+
+    @Transactional
+    public void revokeAllByUserId(Long userId) {
+
+        refreshTokenRepository.revokeAllByUserId(userId);
+    }
+
+    private void validateActiveUser(User user) {
+
+        if (!user.isActive()) {
+            throw new BadCredentialsException("Invalid credentials");
+        }
     }
 
     @Getter
     @AllArgsConstructor
     public static class RotationResult {
+
         private final Long userId;
         private final String refreshToken;
+        private final Role role;
     }
 }

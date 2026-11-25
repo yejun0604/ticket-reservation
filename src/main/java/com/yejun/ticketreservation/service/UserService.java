@@ -1,5 +1,6 @@
 package com.yejun.ticketreservation.service;
 
+import com.yejun.ticketreservation.domain.ReservationStatus;
 import com.yejun.ticketreservation.domain.User;
 import com.yejun.ticketreservation.dto.UserCreateRequestDto;
 import com.yejun.ticketreservation.dto.UserResponseDto;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 
@@ -25,10 +27,13 @@ public class UserService {
     private final ReservationRepository reservationRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponseDto getUser(Long userId) {
+    public UserResponseDto getUser(Long userId, Long currentUserId, String role) {
+
+        validateUserAccess(userId, currentUserId, role);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found: " + userId));
 
         return UserMapper.toDto(user);
     }
@@ -61,15 +66,28 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId ){
+    public void deleteUser(Long userId, Long currentUserId, String role) {
 
-        User user = userRepository.findById(userId )
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId ));
+        validateUserAccess(userId, currentUserId, role);
 
-        if(reservationRepository.existsByUserId(userId )) {
-            throw new UserHasReservationsException("User with reservations cannot be deleted: " + userId);
+        User user = userRepository.findByIdForAccountUpdate(userId)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found: " + userId));
+
+        if (reservationRepository.existsByUserIdAndStatus(
+                userId, ReservationStatus.CONFIRMED)) {
+
+            throw new UserHasReservationsException(
+                    "Cancel active reservations before deleting your account");
         }
 
-        userRepository.delete(user);
+        user.deactivate();
+    }
+
+    private void validateUserAccess(Long userId, Long currentUserId, String role) {
+
+        if (!userId.equals(currentUserId) && !"ADMIN".equals(role)) {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 }

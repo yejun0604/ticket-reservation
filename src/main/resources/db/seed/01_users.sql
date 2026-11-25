@@ -4,12 +4,14 @@
 -- For local development only.
 -- Safe to run repeatedly because conflicts are ignored.
 
-INSERT INTO users (id, name, email, password_hash)
+INSERT INTO users (id, name, email, password_hash, role, active)
 SELECT
     seed.id,
     seed.name,
     seed.email,
-    '$2y$10$Ef8eT1VJX5P8JxP2Y1fLL.YYo3WDNmxDy0.eFL8KS/x0VI4MRh.l.'
+    '$2y$10$Ef8eT1VJX5P8JxP2Y1fLL.YYo3WDNmxDy0.eFL8KS/x0VI4MRh.l.',
+    'USER',
+    TRUE
 FROM (
          VALUES
              (30001, 'Alex Kim', 'seed.user01@example.com'),

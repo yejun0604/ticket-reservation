@@ -1,4 +1,3 @@
-
 package com.yejun.ticketreservation.performance;
 
 import com.yejun.ticketreservation.domain.*;
@@ -73,12 +72,11 @@ class ReservationPaginationPerformanceTest {
             ReservationCreateRequestDto request =
                     new ReservationCreateRequestDto();
 
-            request.setUserId(user.getId());
             request.setEventId(event.getId());
             request.setItems(List.of(item));
 
             expectedReservationIds.add(
-                    reservationService.createReservation(request)
+                    reservationService.createReservation(user.getId(), request)
                             .getReservationId()
             );
         }
@@ -95,6 +93,7 @@ class ReservationPaginationPerformanceTest {
 
         Page<ReservationSummaryResponseDto> page =
                 reservationService.getReservations(
+                        user.getId(),
                         PageRequest.of(
                                 0,
                                 20,
@@ -107,7 +106,7 @@ class ReservationPaginationPerformanceTest {
         assertThat(page.getNumberOfElements()).isEqualTo(20);
 
         assertThat(page.getTotalElements())
-                .isGreaterThanOrEqualTo(20);
+                .isEqualTo(20);
 
         assertThat(page.getContent())
                 .extracting(ReservationSummaryResponseDto::getReservationId)
@@ -118,9 +117,11 @@ class ReservationPaginationPerformanceTest {
         System.out.println(
                 "Returned reservations: " + page.getNumberOfElements()
         );
+
         System.out.println(
                 "Total reservations: " + page.getTotalElements()
         );
+
         System.out.println(
                 "Executed SQL statements: " + queryCount
         );

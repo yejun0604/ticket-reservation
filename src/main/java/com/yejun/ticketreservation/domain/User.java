@@ -26,8 +26,15 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations = new ArrayList<>();
+
+    @Column(nullable = false)
+    private boolean active = true;
 
     public static User createUser(String name, String email, String passwordHash) {
 
@@ -37,6 +44,10 @@ public class User {
         user.passwordHash = passwordHash;
 
         return user;
+    }
+
+    public void deactivate() {
+        this.active = false;
     }
 
 }
