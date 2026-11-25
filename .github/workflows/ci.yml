@@ -1,0 +1,55 @@
+name: ReserveFlow CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ticket_reservation
+          POSTGRES_USER: ticket_app
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ticket_app -d ticket_reservation"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/ticket_reservation
+      DB_USERNAME: ticket_app
+      DB_PASSWORD: ci_test_password
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Generate test JWT secret
+        run: echo "JWT_SECRET=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: Grant Gradle execution permission
+        run: chmod +x gradlew
+
+      - name: Run automated tests
+        run: ./gradlew test --no-daemon
+
+      - name: Build Docker image
+        run: docker build -t reserveflow:ci .
