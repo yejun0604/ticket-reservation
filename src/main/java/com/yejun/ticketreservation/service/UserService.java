@@ -26,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
     public UserResponseDto getUser(Long userId, Long currentUserId, String role) {
 
@@ -71,17 +72,16 @@ public class UserService {
         validateUserAccess(userId, currentUserId, role);
 
         User user = userRepository.findByIdForAccountUpdate(userId)
-                .orElseThrow(() -> new UserNotFoundException(
-                        "User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
 
-        if (reservationRepository.existsByUserIdAndStatus(
-                userId, ReservationStatus.CONFIRMED)) {
+        if (reservationRepository.existsByUserIdAndStatus(userId, ReservationStatus.CONFIRMED)) {
 
             throw new UserHasReservationsException(
                     "Cancel active reservations before deleting your account");
         }
 
         user.deactivate();
+        refreshTokenService.revokeAllByUserId(userId);
     }
 
     private void validateUserAccess(Long userId, Long currentUserId, String role) {
