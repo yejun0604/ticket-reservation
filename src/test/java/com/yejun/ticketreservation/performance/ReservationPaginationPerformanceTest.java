@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -34,6 +35,7 @@ class ReservationPaginationPerformanceTest {
     @Autowired UserRepository userRepository;
     @Autowired EntityManager entityManager;
     @Autowired EntityManagerFactory entityManagerFactory;
+    @Autowired PasswordEncoder passwordEncoder;
 
     @Test
     @Transactional
@@ -41,7 +43,8 @@ class ReservationPaginationPerformanceTest {
 
         User user = userRepository.save(User.createUser(
                 "Pagination Test User",
-                "pagination-" + UUID.randomUUID() + "@test.com"
+                "pagination-" + UUID.randomUUID() + "@test.com",
+                passwordEncoder.encode("TestPassword123!")
         ));
 
         List<Long> expectedReservationIds = new ArrayList<>();

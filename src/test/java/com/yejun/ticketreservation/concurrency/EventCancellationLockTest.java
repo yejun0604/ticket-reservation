@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -33,6 +34,7 @@ class EventCancellationLockTest {
     @Autowired ReservationService reservationService;
     @Autowired EventService eventService;
     @Autowired PlatformTransactionManager transactionManager;
+    @Autowired PasswordEncoder passwordEncoder;
 
     private Event event;
     private Ticket ticket;
@@ -62,7 +64,8 @@ class EventCancellationLockTest {
         user = userRepository.save(
                 User.createUser(
                         "Test User",
-                        "locktest" + UUID.randomUUID() + "@test.com"
+                        "locktest" + UUID.randomUUID() + "@test.com",
+                        passwordEncoder.encode("TestPassword123!")
                 )
         );
 

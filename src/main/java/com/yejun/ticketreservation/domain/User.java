@@ -23,14 +23,18 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String passwordHash;
+
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations = new ArrayList<>();
 
-    public static User createUser(String name, String email){
+    public static User createUser(String name, String email, String passwordHash) {
 
         User user = new User();
         user.name = name;
         user.email = email;
+        user.passwordHash = passwordHash;
 
         return user;
     }

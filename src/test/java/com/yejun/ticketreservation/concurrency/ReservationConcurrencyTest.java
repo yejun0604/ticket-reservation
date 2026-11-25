@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -49,6 +50,8 @@ public class ReservationConcurrencyTest {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @Autowired PasswordEncoder passwordEncoder;
+
     private TransactionTemplate transactionTemplate;
 
     private Long userAId;
@@ -63,8 +66,17 @@ public class ReservationConcurrencyTest {
 
         String unique = String.valueOf(System.nanoTime());
 
-        User userA = User.createUser("User A", "usera" + unique + "@test.com");
-        User userB = User.createUser("User B", "userb" + unique + "@test.com");
+        User userA = User.createUser(
+                "User A",
+                "usera" + unique + "@test.com",
+                passwordEncoder.encode("TestPassword123!")
+        );
+
+        User userB = User.createUser(
+                "User B",
+                "userb" + unique + "@test.com",
+                passwordEncoder.encode("TestPassword123!")
+        );
 
         userA = userRepository.save(userA);
         userB = userRepository.save(userB);

@@ -10,6 +10,7 @@ import com.yejun.ticketreservation.mapper.UserMapper;
 import com.yejun.ticketreservation.repository.ReservationRepository;
 import com.yejun.ticketreservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto getUser(Long userId) {
 
@@ -49,7 +51,9 @@ public class UserService {
             throw new EmailAlreadyExistsException("Email already exists: " + userCreateRequestDto.getEmail());
         }
 
-        User user = User.createUser(userCreateRequestDto.getName(), userCreateRequestDto.getEmail());
+        String passwordHash = passwordEncoder.encode(userCreateRequestDto.getPassword());
+
+        User user = User.createUser(userCreateRequestDto.getName(), userCreateRequestDto.getEmail(), passwordHash);
 
         user = userRepository.save(user);
 
