@@ -8,6 +8,7 @@ class TicketReservationApplicationTests {
 
     @Test
     void contextLoads() {
+        throw new AssertionError("Intentional CI failure");
     }
 
 }
